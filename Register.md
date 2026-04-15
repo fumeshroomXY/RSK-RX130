@@ -115,4 +115,10 @@ PIDR == 1 → Pin is High
 PIDR == 0 → Pin is Low
 ```
 
-
+## When the LED is wired active‑low
+```markdown
+VCC ── resistor ── LED ── GPIO
+```
+In this case:
+- GPIO = 0 → LED ON
+- GPIO = 1 → LED OFF
