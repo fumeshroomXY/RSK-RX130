@@ -134,3 +134,4 @@ Add a flag to ensure that the while loop and the led_on part are executed **alte
 ```
 Detect counter rollover safely.
 # Timer with interrupt
+[FITTimer](https://github.com/fumeshroomXY/RSK-RX130/blob/main/FITTimer.md)
