@@ -160,6 +160,7 @@ Advantages:
 
 # ADC Input on the RSK‑RX130 Board without external hardware
 The board includes a **variable resistor (VR)** connected to an ADC pin(AN000).
+<img src="/images/AN000.png" width="50%">
 
 So we can:
 - Rotate the knob
