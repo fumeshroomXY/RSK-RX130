@@ -12,6 +12,25 @@
 - How often the signal is measured (e.g., samples per second)
 - Higher rate = better representation of fast‑changing signals
 
+### Sampling time
+An ADC conversion is typically split into **states** (phases):
+- Sampling (Track / Acquire)
+- Hold
+- Conversion (quantization)
+- Result output
+
+**each state = 1 ADC clock period**.
+
+The sampling time is the amount of time the ADC allows the input signal to **charge an internal sample-and-hold capacitor**.
+```markdown
+Sampling time= (Number of states) × (ADC clock period)
+```
+
+To change sampling time:
+- You change **how many states** the ADC waits
+- Longer = more accurate for high‑impedance inputs
+- Shorter = faster conversion, less accurate
+
 ## Channel
 ADC channel = **one specific analog input path (pin) connected to the ADC**
 
@@ -60,6 +79,7 @@ AN000 → AN001 → AN002 → AN000 → AN001 → ...
 - Consistent timing between channels
 - Better for real-time systems
 - Easier to synchronize with timers or interrupts
+
 
 ## Internal Reference Voltage
 The internal reference voltage (**Vref**) is a precise, built‑in voltage source inside the microcontroller that the ADC uses as **a comparison standard** when converting an analog signal into a digital value.
