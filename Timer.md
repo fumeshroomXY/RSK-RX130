@@ -134,4 +134,34 @@ Add a flag to ensure that the while loop and the led_on part are executed **alte
 ```
 Detect counter rollover safely.
 # Timer with interrupt
-[FITTimer](https://github.com/fumeshroomXY/RSK-RX130/blob/main/FITTimer.md)
+```c
+#pragma interrupt cmt0_isr (vect=VECT_CMT0_CMI0)
+```
+**#pragma** tells the compiler “this function is an **interrupt service routine (ISR)** and which hardware **interrupt vector** it belongs to.
+
+A hardware interrupt:
+
+- Is triggered by a peripheral (timer, UART, ADC, etc.)
+- Stops normal code execution
+- Jumps to a special function called an ISR
+- Returns automatically
+
+Each interrupt source has a **vector number** (interrupt ID).
+
+**cmt0_isr**: This is the function name that will act as the ISR.
+```c
+void cmt0_isr(void){
+	//led_on
+	...
+}
+```
+The pragma **binds this function** to an interrupt vector.
+
+**(vect=VECT_CMT0_CMI0)**:
+- vect = interrupt vector number
+- VECT_CMT0_CMI0 = macro defined in the MCU header files
+- CMT0 → Compare Match Timer 0
+- CMI0 → Compare Match Interrupt 0
+
+So this interrupt fires when the timer CMT0 reaches its compare match value.
+
