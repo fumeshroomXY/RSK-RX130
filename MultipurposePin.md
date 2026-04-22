@@ -1,0 +1,62 @@
+# Multi‑purpose Pin
+A single physical pin can perform **more than one function**, depending on how it is configured in hardware or software.
+
+A single pin might act as:
+
+- GPIO (General‑Purpose Input/Output)
+- UART (TX or RX)
+- SPI (MOSI, MISO, SCLK, CS)
+- I²C (SDA or SCL)
+- PWM output
+- Analog input (ADC)
+- External interrupt
+- Clock or debug interface
+
+
+
+
+
+## Why multifunction pins exist
+- Reduce pin count → smaller chips, lower cost
+- Increase flexibility → one chip fits many applications
+
+## A Real Example
+
+### How the function is selected
+Multifunction pins are usually configured by:
+- Software registers (e.g. pin‑mux registers)
+- Firmware initialization code
+- Boot‑time configuration
+- Occasionally external pull‑up or pull‑down resistors
+
+<img src="/images/MultifunctionPinRegisterSet.png" width="50%">
+
+- PB3 → one physical pin on the MCU package
+- MTIOC0A, SCK6, etc. → internal peripheral signals from different hardware blocks
+
+```
+/* Set SCK6 pin */
+MPC.PB3PFS.BYTE = 0x0BU;  // Selects which peripheral uses PB3
+PORTB.PMR.BIT.B3 = 1U;    // Enables peripheral mode
+```
+You cannot use PB3 as GPIO and RXD6 simultaneously.
+
+
+## Why MTIOC0A is also connected to P34
+<img src="/images/MTIOC0A.png" width="50%">
+The MCU schematic shows all possible routing options. 
+
+**Not a statement that the signal is permanently wired to only that pin**.
+
+Some signals have preferred pins. The schematic shows one common default pin.
+So:
+```markdown
+Internal peripheral signal (MTIOC0A)
+        |
+        v
+   Pin multiplexer (MPC)
+        |
+        +--> P34  (if selected)
+        |
+        +--> PB3  (if selected)
+```
