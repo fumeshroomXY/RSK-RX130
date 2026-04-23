@@ -39,6 +39,18 @@ Solution:
 - **THEN plug in PMOD USB**
 
 
+## Local Echo
+In Tera Term, Local Echo controls whether characters you type are **displayed (echoed) on your screen** by Tera Term itself
+
+- ON (enabled)
+  - Every key you press is immediately shown on your screen by Tera Term.
+  - This happens **even if the remote device does not send the characters back**.
+  - Useful when the connected system does not echo input.
+
+- OFF (disabled)
+  - Typed characters are **only shown if the remote device sends them back**.
+  - Useful for systems (Linux shells, routers, network devices).
+
 # Asynchronous serial communication
 A mechanism that allows the transmitter and receiver to stay synchronized **without a shared clock**.
 
