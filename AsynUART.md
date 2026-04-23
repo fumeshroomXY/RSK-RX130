@@ -1,3 +1,44 @@
+# Hardware Preparation
+**Key things to confirm from the board manual / schematic**
+- Which **SCI channels** are pinned out
+  - RX130 usually has SCI0–SCI12 (varies by package)
+- Pin mapping
+  - RXD6 → PB0
+  - TXD6 → PB1
+  - SCK6 → PB3
+  - RX series uses **MPC (Multi‑Function Pin Controller)**, so pins do nothing until configured.
+- **How the PC connects**
+  - USB virtual COM port
+  - Or external UART adapter (FTDI-based PMOD module)
+ 
+- Connection summary
+```markdown
+PC(e2 studio) ↔ E2 Lite(Debugger) ↔ RX130 SCI ↔ PMOD ↔ PMOD UART MODULE ↔ USB cable ↔ PC(Tera Term COM port)
+```
+
+## Power‑up / Reset timing Problem
+Problem:
+- ✅ e2‑lite debugger USB alone → debugging works
+- ❌ e2‑lite USB + PMOD USB connected → debug initialization error
+- ✅ Disconnect PMOD USB → works again
+
+Cause: **Back‑powering** via PMOD USB (VERY common)
+
+When PMOD USB is plugged in:
+
+
+The PMOD provides 5V (VBUS) to the PMOD connector
+- That voltage may feed back into RX130 VCC or I/O pins via protection diodes
+- MCU is partially powered before debugger reset
+- But debuggers require a **clean power‑up and reset sequence**.
+- MCU does **not enter debug mode**, e² studio reports initialization error
+
+Solution:
+- Plug in **debugger USB first**
+- Start debug session
+- **THEN plug in PMOD USB**
+
+
 # Asynchronous serial communication
 A mechanism that allows the transmitter and receiver to stay synchronized **without a shared clock**.
 
@@ -5,6 +46,13 @@ In asynchronous serial communication:
 - **No common clock line** between sender and receiver
 - Only TX, RX, (and usually GND) are shared
 - Timing is recovered from the data stream itself
+
+## What does "Send" and "Receive" mean
+“Send” and “Receive” are always from the **RX130’s point of view**, not the PC, not the PMOD.
+
+So:
+- Send = RX130 transmits data out of its SCI TX pin
+- Receive = RX130 receives data into its SCI RX pin
 
 ## Frame
 Each transmitted character is framed like this:
