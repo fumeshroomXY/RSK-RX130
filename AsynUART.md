@@ -130,6 +130,23 @@ If data has an odd number of 1s, parity bit = 1.
 - Higher data rate
 - Less error checking
 
+
+## Overrun Error
+When incoming serial data arrives **faster than the receiver can read it**, **unread data is overwritten by new data** in the receive buffer.
+- The SCI hardware receives a byte from the serial line.
+- That byte is placed into the **receive data register (RDR)**.
+- Before the CPU reads that byte, another byte arrives.
+- The hardware has **no free space** to store the new byte.
+  - → **Overrun error flag** is set
+  - → The new byte is lost
+
+### Why does it happen?
+Common causes include:
+- **Interrupt latency too long**
+- CPU is **busy or blocked**
+- **Baud rate too high**
+- Interrupts disabled for too long
+
 # Asynchronous vs Synchronous Summary
 | Feature  | Asynchronous (UART) | Synchronous (SPI, I²C)|
 |------|-----|-----|
