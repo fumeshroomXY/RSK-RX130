@@ -6,7 +6,7 @@
   - RXD6 → PB0
   - TXD6 → PB1
   - SCK6 → PB3
-  - RX series uses **MPC (Multi‑Function Pin Controller)**, so pins do nothing until configured.
+  - RX series uses **[MPC](https://github.com/fumeshroomXY/RSK-RX130/blob/main/MultipurposePin.md) (Multi‑Function Pin Controller)**, so pins do nothing until configured.
 - **How the PC connects**
   - USB virtual COM port
   - Or external UART adapter (FTDI-based PMOD module)
