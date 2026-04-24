@@ -121,3 +121,61 @@ int main(void) {
 |Speed | Slow  |Fast|
 |Real-time safe |  No  | Yes   |
 |Production use |  No   |Yes|
+
+
+
+# Cannot print a uint8_t buf[20] directly with a single printf
+Because it’s an array of bytes. You must print each element in a loop.
+```c
+// 1. Print as hexadecimal (most common for buffers)
+uint8_t buf[20] = {0x01, 0xA2, 0xFF, 0x10};
+
+for (int i = 0; i < 20; i++) {
+    printf("%02X ", buf[i]);
+}
+printf("\n");
+
+//Output example: 01 A2 FF 10 ...
+
+// 2. Print as unsigned decimal
+for (int i = 0; i < 20; i++) {
+    printf("%u ", buf[i]);
+}
+printf("\n");
+
+//Output example: 1 162 255 16 ...
+
+// 3. Print as ASCII characters (only if it’s text)
+for (int i = 0; i < 20; i++) {
+    if (buf[i] >= 32 && buf[i] <= 126)  // Only do this if the buffer contains printable characters.
+        printf("%c", buf[i]);
+    else
+        printf(".");
+}
+printf("\n");
+```
+# Print printable characters
+```c
+void buffer_init(){
+    uint8_t i = 0;
+    while(i < sizeof(async_buf)){
+        async_buf[i] = i;  // This fills the buffer with binary values: 0x00, 0x01, 0x02, 0x03
+        ++i;
+    }
+}
+```
+- If the buf is transmitted to a serial port, it probably shows nothing. Because these are **control characters**, not printable text.
+- Most serial terminal programs display **printable ASCII only**. **0–31 are not printable characters**.
+
+- If you want to send raw binary:
+  - Enable **“Display hex” or “Binary mode”** in the terminal
+
+### How to make the data visible
+```c
+// Option 1: Send ASCII digits
+async_buf[i] = '0' + i;   // sends '0'..'9'
+async_buf[i] = 'A' + i;   // sends 'A'..'Z'
+
+// Option 2: Send readable text
+char async_buf[] = "Hello World!";
+```
