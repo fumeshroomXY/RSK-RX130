@@ -147,6 +147,27 @@ Common causes include:
 - **Baud rate too high**
 - Interrupts disabled for too long
 
+
+## Asserting a Break
+In UART/SCI communication:
+- Normal idle line: **High**
+- Start bit: **Low for 1 bit time**
+- Data + stop bits follow
+
+A **BREAK condition** is when:
+- The TX line is forced Low continuously for **longer than one frame** (longer than a start bit + data bits + stop bit)
+- A special signaling condition used to **mark end of transmission**
+
+### Why this method is used
+Many SCI/UART peripherals do not have a dedicated “send BREAK” register.
+So the hardware manual tells you to:
+- Finish serial transmission
+- Disable the transmitter
+- Switch TX pin to GPIO
+- Force it **Low**
+- Hold Low for the required BREAK duration
+
+
 # Asynchronous vs Synchronous Summary
 | Feature  | Asynchronous (UART) | Synchronous (SPI, I²C)|
 |------|-----|-----|
