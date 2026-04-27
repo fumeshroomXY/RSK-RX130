@@ -37,6 +37,77 @@ PORTB.PMR.BIT.B3 = 1U;    // Enables peripheral mode
 ```
 You cannot use PB3 as GPIO and RXD6 simultaneously.
 
+## Write Protection
+You must unlock the write protection before you switch the function.
+```c
+
+/* 1. Unlock MPC */
+MPC.PWPR.BIT.B0WI = 0;
+MPC.PWPR.BIT.PFSWE = 1;
+
+/* 2. Disable peripheral mode */
+PORTB.PMR.BIT.B0 = 0;
+PORTB.PMR.BIT.B1 = 0;
+PORTB.PMR.BIT.B3 = 0;
+
+/* 3. Write PFS registers */
+MPC.PB0PFS.BYTE = 0x0B;
+MPC.PB1PFS.BYTE = 0x0B;
+MPC.PB3PFS.BYTE = 0x0B;
+
+/* 4. Enable peripheral mode */
+PORTB.PMR.BIT.B0 = 1;
+PORTB.PMR.BIT.B1 = 1;
+PORTB.PMR.BIT.B3 = 1;
+
+/* 5. Lock MPC */
+MPC.PWPR.BIT.PFSWE = 0;
+MPC.PWPR.BIT.B0WI = 1;
+```
+
+### Why write protection is needed?
+Prevent the pin suddenly jumping from:
+- UART TX → SPI MOSI
+- Timer output → IRQ input
+- Output → Input
+
+That can cause:
+- Spurious clock edges
+- False interrupts
+- Data corruption
+- External device lockups
+
+### Why a two-stage unlock is required
+PWPR = **Pin Write Protection Register**
+
+It is a two-level hardware lock, not one.
+```c
+PWPR
+ ├── B0WI   (Protects PWPR itself)  // you must write B0WI before writing PFSWE
+ └── PFSWE  (Enables PxPFS writes)
+
+/* 1. Unlock MPC */
+MPC.PWPR.BIT.B0WI = 0;
+MPC.PWPR.BIT.PFSWE = 1;
+```
+The design goal: **You must make a deliberate, conscious decision to unlock the MPC**.
+
+Because otherwise this would be possible (and dangerous):
+```c
+MPC.PWPR.BIT.PFSWE = 1;   // single accidental write unlocks pins
+```
+
+### Why GPIO registers don’t need this
+You might notice: PORTx.PDR, PORTx.PODR, PORTx.PMR aren’t double-locked.
+
+Why?
+
+Because:
+- GPIO changes are expected at runtime
+- GPIO misconfiguration usually = functional bug, not HW damage
+
+
+Pin muxing is **much more dangerous**.
 
 ## Why MTIOC0A is also connected to P34
 <img src="/images/MTIOC0A.png" width="50%">
