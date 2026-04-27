@@ -85,3 +85,43 @@ void R_SCI_PinSet_SCI6()
 ...
 R_SCI_PinSet_SCI6();
 ```
+
+# GPIO vs Peripheral function
+## Used as a general‑purpose input/output port (GPIO)
+When a pin is set to **GPIO mode**:
+- **You control it directly in software**
+- The pin can be:
+  - Input → read HIGH/LOW (e.g., button, sensor)
+  - Output → set HIGH/LOW (e.g., LED, relay)
+- The microcontroller treats the pin as a simple digital signal
+
+Characteristics
+- Fully controlled by your code
+- You manually read/write the pin state
+- No special hardware function attached
+
+Example:
+```c
+// GPIO output
+PORTA |= (1 << 0);   // Set pin HIGH
+PORTA &= ~(1 << 0);  // Set pin LOW
+```
+
+## Used as a peripheral function (Peripheral / Alternate Function)
+When a pin is set to peripheral mode:
+- The pin is **handed over to internal hardware**
+- It becomes part of a built‑in peripheral
+- You **no longer toggle it manually**
+
+Common peripheral functions
+
+- UART (TX/RX)
+- SPI (MISO, MOSI, SCK)
+- I²C (SDA, SCL)
+- Timer capture/compare
+- ADC input (on some MCUs)
+
+Characteristics
+- The peripheral hardware controls the pin
+- Pin behavior depends on the peripheral configuration
+- Software interacts with the **peripheral registers, not the pin directly**
