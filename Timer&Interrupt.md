@@ -148,6 +148,15 @@ A hardware interrupt:
 
 Each interrupt source has a **vector number** (interrupt ID).
 
+Enable the interrupt before it occurs:
+```c
+// enable CMT0 interrupt
+// interrupt number = (IER index × 8) + bit number = (3 × 8) + 4 = 28
+ICU.IER[3].BIT.IEN4 = 1;
+// set interrupt priority, 0 = disabled, 1 = lowest, 15 = highest
+ICU.IPR[4].BIT.IPR = 0x1; 
+```
+
 **cmt0_isr**: This is the function name that will act as the ISR.
 ```c
 void cmt0_isr(void){
