@@ -181,3 +181,215 @@ Each entry usually contains:
 |CMT   |  ✅ Yes        |  ✅ Yes   |   ✅ Yes  |
 |RTC   |  ✅ Yes       |   ✅ Yes   |   ✅ Yes   |
 |SCI RX|  ✅ Yes        |  ✅ Yes    |  ✅ Yes   |
+
+- Software Trigger is one-shot. **No second activation**. No sustained interrupt request.
+- Software Trigger cannot be cleared by code and **not retriggerable**.
+
+
+## Transfer Mode
+Example: Copy src -> des[3] (Memory to Memory)
+```c
+uint32_t src = 1234;
+uint32_t des[3];
+td_cfg.src_addr_mode = DTC_SRC_ADDR_FIXED;
+td_cfg.data_size = DTC_DATA_SIZE_LWORD;
+td_cfg.transfer_mode = DTC_TRANSFER_MODE_BLOCK;
+td_cfg.dest_addr_mode = DTC_DES_ADDR_INCR;
+td_cfg.repeat_block_side = DTC_REPEAT_BLOCK_SOURCE;
+td_cfg.response_interrupt = DTC_INTERRUPT_PER_SINGLE_TRANSFER;
+td_cfg.chain_transfer_enable = DTC_CHAIN_TRANSFER_DISABLE;
+td_cfg.chain_transfer_mode = (dtc_chain_transfer_mode_t)0;
+
+td_cfg.source_addr = (uint32_t)&src;
+td_cfg.dest_addr = (uint32_t)des;
+td_cfg.transfer_count = 1;
+td_cfg.block_size = 1;
+```
+
+### `transfer_count`
+- One interrupt = one DTC activation
+- `transfer_count` = **how many data units are transferred during ONE interrupt**
+
+Example:
+```c
+transfer_count = 8;
+mode = Normal;
+```
+
+```markdown
+Interrupt #1:
+  DTC transfers 8 elements (buffer[0]..buffer[7])
+  transfer_count reaches 0
+  DTC disables itself
+
+Interrupt #2:
+  ❌ DTC does nothing
+```
+- Only one interrupt was needed
+- All 8 transfers happened **within that single interrupt**
+
+### `repeat_block_side`
+In Repeat mode, only ONE side resets:
+- Source repeat **or**
+- Destination repeat
+
+If you accidentally set:
+- Source = repeat
+- Destination = increment only
+
+Then the destination **walks through memory**(silent memory corruption).
+
+Correct setting for register → array:
+```markdown
+Source: FIXED
+Destination: INCREMENT + REPEAT
+```
+
+### `response_interrupt`
+#### Trigger interrupt
+- Comes from a peripheral (e.g., CMT0, ADC, SCI RXI)
+- Starts (activates) the DTC transfer
+
+#### DTC interrupt (different from Trigger interrupt)
+- Comes from the DTC module
+- Happens after data transfer
+- Optional
+- Used only if you want CPU notification
+```c
+DTC_INTERRUPT_AFTER_ALL_COMPLETE;   // One CPU interrupt is generated after the entire transfer finishes.
+DTC_INTERRUPT_PER_SINGLE_TRANSFER;  // The DTC generates a CPU interrupt after each single transfer.
+```
+
+Notice:
+- Sometimes the DTC interrupt vector is mapped to **the SAME ISR** as the trigger interrupt or the DTC interrupt itself is considered the same as the trigger interrupt by MCU.
+
+This will cause:
+```markdown
+Trigger interrupt occurs (1 time)
+        ↓
+DTC activated
+        ↓
+Transfer #1 → DTC interrupt -> Trigger interrupt ISR
+Transfer #2 → DTC interrupt -> Trigger interrupt ISR
+Transfer #3 → DTC interrupt -> Trigger interrupt ISR
+
+
+Trigger interrupt ISR should be called once
+                ↓
+Trigger interrupt ISR is called more than once
+```
+
+
+### Normal Mode
+- Performs a **one‑shot transfer per launch**.
+- Each DTC activation transfers all configured transfer data once.
+- After completing the transfer, the DTC **stops and disables** itself for that vector unless re-enabled.
+- Further interrupts do **NOT** trigger DTC. **Only the CPU ISR runs** (if enabled)
+
+```markdown
+transfer_count = 1;
+1 trigger interrupt, 1 DTC interrupt:
+src -> des[0]
+des[1], des[2] do not change.
+
+transfer_count = 3;
+DTC_INTERRUPT_PER_SINGLE_TRANSFER;
+1 trigger interrupt, 3 DTC interrupts:
+interrupt 0: src -> des[0]
+interrupt 1: src -> des[1]
+interrupt 2: src -> des[2]
+
+transfer_count = 3;
+DTC_INTERRUPT_AFTER_ALL_COMPLETE;
+1 trigger interrupt, 1 DTC interrupt:
+src -> des[0]
+src -> des[1]
+src -> des[2]
+```
+
+### Repeat Mode
+- **Automatically** repeats the same transfer
+- After completing a block transfer, the transfer count is **reloaded**.
+- One address (source or destination) is **fixed**, the other **increments normally and should be repeated**.
+```markdown
+transfer_count = 1;
+DTC_INTERRUPT_PER_SINGLE_TRANSFER;
+DTC_REPEAT_BLOCK_SOURCE;
+Every trigger interrupt:
+interrupt 0: src -> des[0]
+interrupt 1: src -> des[1]
+interrupt 2: src -> des[2]
+...
+(silent memory corruption)
+
+transfer_count = 1;
+DTC_INTERRUPT_PER_SINGLE_TRANSFER;
+DTC_REPEAT_BLOCK_DESTINATION;
+Every trigger interrupt:
+src -> des[0]
+des[1], des[2] do not change.
+
+transfer_count = 3;
+DTC_INTERRUPT_PER_SINGLE_TRANSFER;
+DTC_REPEAT_BLOCK_DESTINATION;
+Every three trigger interrupts:
+trigger interrupt 0: src -> des[0]
+trigger interrupt 1: src -> des[1]
+trigger interrupt 2: src -> des[2]
+
+transfer_count = 3;
+DTC_INTERRUPT_AFTER_ALL_COMPLETE;
+DTC_REPEAT_BLOCK_DESTINATION;
+Every trigger interrupt:
+src -> des[0]
+src -> des[1]
+src -> des[2]
+```
+
+### Block Mode
+Transfers one block of data per launch.
+```markdown
+if transfer_count = 1, block_size = 3:
+Every trigger interrupt:
+src -> des[0]
+src -> des[1]
+src -> des[2]
+
+if transfer_count = 1, block_size = 1:
+Every trigger interrupt:
+src -> des[0]
+des[1], des[2] do not change.
+```
+
+## The Order of DTC Transfer and ISR
+Example: If a CMT0 interrupts occurs, which one goes first? DTC transfer or ISR?
+Answer: **The DTC transfer runs first**. The CMT0 ISR executes afterward (if it is enabled).
+
+### DTC transfer (if enabled for that interrupt)
+- The ICU sees that DTC is linked to the CMT0 interrupt source
+- The DTC is invoked immediately
+- The DTC performs all configured transfers
+- This happens without entering an ISR
+- The CPU is **not involved**
+
+### CPU interrupt (ISR), if enabled
+- After the DTC finishes, the CPU:
+  - Stacks registers
+  - Jumps to the CMT0 ISR
+- If the CMT0 interrupt is masked (IEN = 0), this step is skipped
+
+### Why this ordering exists
+On RX MCUs: DTC is treated as a **hardware “pre‑ISR” mechanism**.
+
+The DTC is designed to:
+
+- Move data **before** the CPU touches anything
+- **Reduce ISR execution time**
+- Let ISRs operate on **already‑updated data**
+
+This is why DTC is commonly used with:
+- ADC end interrupts
+- SCI RX interrupts
+- Timers (CMT)
+- RTC ticks
+
