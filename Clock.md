@@ -8,6 +8,7 @@ For example, if we want to use the CMT timer, since its clock cycle is determine
 
 
 <img src="/SCKCR3.png" width="80%">
+
 - For example, for the SCKCR3 register, CKSEL == 0x000 means that LOCO clock is selected.
 
 - Because the reset value may be different from what is written in the user manual, it's better to **check the real value when debugging**.
