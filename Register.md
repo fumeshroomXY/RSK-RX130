@@ -20,13 +20,13 @@ struct st_port2 {
 For a register like above, there are two ways to set:
 - set the bit directly
 ```c
-st_port2.PDR.BIT.B0 = 1;
+st_port2.PDR.BIT.B0 = 1U;
 ```
 
 - set the whole register by using the unsigned
 ```c
 st_port2.PDR.BYTE = 0x01;
-// same as st_port2.PDR.BIT.B0 = 1;
+// same as st_port2.PDR.BIT.B0 = 1U;
 ```
 
 You **CANNOT** set the *BIT* like this:
