@@ -25,7 +25,7 @@ Multifunction pins are usually configured by:
 - Boot‑time configuration
 - Occasionally external pull‑up or pull‑down resistors
 
-<img src="/images/MultifunctionPinRegisterSet.png" width="50%">
+<img src="/images/MultifunctionPinRegisterSet.png" width="80%">
 
 - PB3 → one physical pin on the MCU package
 - MTIOC0A, SCK6, etc. → internal peripheral signals from different hardware blocks
