@@ -261,7 +261,7 @@ DTC_INTERRUPT_PER_SINGLE_TRANSFER;  // The DTC generates a CPU interrupt after e
 ```
 
 Notice:
-- Sometimes the DTC interrupt vector is mapped to **the SAME ISR** as the trigger interrupt or the DTC interrupt itself is considered the same as the trigger interrupt by MCU.
+- Depending on the MCU, the DTC interrupt vector may be mapped to the **same ISR** as the trigger interrupt. In such cases, the MCU does not distinguish between the DTC interrupt and the original trigger interrupt—they are processed by the same ISR.
 
 This will cause:
 ```markdown
