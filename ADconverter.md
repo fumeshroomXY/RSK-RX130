@@ -96,7 +96,7 @@ External reference voltage
 - Defines the measurement range
 - Affects resolution (volts per step), **Lower reference voltage → finer resolution**
 
-### Commone reference voltage
+### Common reference voltage
 - AVCC (supply voltage, e.g. 3.3V)
   - You usually know it from the board schematic
 - Internal reference voltage(most common for sensors)
