@@ -234,7 +234,7 @@ In Repeat mode, only ONE side resets:
 - Destination repeat
 
 If you accidentally set:
-- Source = repeat
+- Source = fixed + repeat
 - Destination = increment only
 
 Then the destination **walks through memory**(silent memory corruption).
