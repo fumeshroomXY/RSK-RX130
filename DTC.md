@@ -362,7 +362,9 @@ des[1], des[2] do not change.
 ```
 
 ## The Order of DTC Transfer and ISR
-Example: If a CMT0 interrupts occurs, which one goes first? DTC transfer or ISR?
+Question: If a CMT0 interrupts occurs, which one goes first? DTC transfer or ISR?
+
+
 Answer: **The DTC transfer runs first**. The CMT0 ISR executes afterward (if it is enabled).
 
 ### DTC transfer (if enabled for that interrupt)
