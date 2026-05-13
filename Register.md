@@ -46,7 +46,7 @@ An output register is used to store data that is being **sent out** of the syste
 
 ## I/O Port Registers
 Some registers can be defined as input or output because they are bidirectional storage elements whose role is **determined by control signals and system context.**
-- Each pin has a **data register**
+- Each pin has **data register(s)**
 - A **direction register** defines behavior
 
 ```c
