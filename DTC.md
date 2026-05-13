@@ -31,7 +31,7 @@ SCI ⇄ CPU ⇄ RAM
 ### Practical example
 Without DTC
 - SCI RX interrupt fires for every byte at 115200 baud
-- CPU runs ~115200 interrupts per second
+- CPU runs ~11520 interrupts per second
 - If another ISR delays execution → RX overrun possible
 
 ## SCI with DTC (Data Transfer Controller)
