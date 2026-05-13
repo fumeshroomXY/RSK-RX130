@@ -106,9 +106,6 @@ If transmitter and receiver baud rates differ:
 ```markdown
 System clock → Prescaler → Baud rate generator
 ```
-Baud rate = fCPU​ / (N × Divider)
-​- fCPU = clock frequency
-- N = oversampling factor (8 or 16)
 
 ## Parity
 A simple **error‑detection mechanism** added to each data frame to help detect single‑bit transmission errors.
