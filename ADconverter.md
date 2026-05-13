@@ -74,13 +74,6 @@ Scan mode means that the converter **automatically converts one or more selected
 AN000 → AN001 → AN002 → AN000 → AN001 → ...
 ```
 
-### Why scan mode is useful
-- Less software code
-- Consistent timing between channels
-- Better for real-time systems
-- Easier to synchronize with timers or interrupts
-
-
 ## Internal Reference Voltage
 The internal reference voltage (**Vref**) is a precise, built‑in voltage source inside the microcontroller that the ADC uses as **a comparison standard** when converting an analog signal into a digital value.
 
