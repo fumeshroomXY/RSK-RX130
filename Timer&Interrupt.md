@@ -30,6 +30,16 @@ If PCLK = 32 MHz
 If expected timer = 1s
 - Counter = 1s ÷ 16µs - 1 = 62499
 
+# What if the calculated maximum value exceeds the counter width
+You have several options:
+#### Increase the prescaler
+Reduce the timer clock so the required count fits.
+
+#### Use a larger timer
+If available, switch from 8‑bit → 16‑bit, or 16‑bit → 32‑bit.
+
+#### Use multiple counts
+Divide the target time. For example, divide 1s into 250ms and count 4 times in software.
 
 # Timer without interrupt
 ## Algorithm 1
