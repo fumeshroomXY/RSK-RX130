@@ -122,3 +122,16 @@ VCC ── resistor ── LED ── GPIO
 In this case:
 - GPIO = 0 → LED ON
 - GPIO = 1 → LED OFF
+
+## Better to set `PODR` or `PIDR` before setting `PDR`
+- As soon as you set PDR = 1, the pin will immediately drive the value stored in PODR.
+- If PODR contains an unintended value, the pin may **momentarily output the wrong level**, causing
+	- glitches,
+ 	- LED flicker,
+  	- or even damaging external circuits.
+ 
+So:
+```c
+PODR.BIT.B0 = 0;   // prepare output level
+PDR.BIT.B0  = 1;   // now enable output
+```
