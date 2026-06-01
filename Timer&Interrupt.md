@@ -10,12 +10,21 @@ We need to access the **Module Stop Control Register** to disable/enable the ope
 st_system.MSTPCRA.BIT.MSTPA15 = 0;
 ```
 
+Or use hardware register **macros** in Renesas MCU (RX / RL78 families, etc.) to control module power, interrupt priority, and interrupt enable.
+
+```c
+MSTP(CMT0) = 0;   // Enable module (release from stop)
+MSTP(CMT0) = 1;   // Disable module (module stopped)
+```
+
 ## Register Write Protection
 The register write protection feature protects important registers from **being overwritten in case the program malfunctions**.
 
 As we try to write the system register(MSTPCRA), first we need to gain the access to the protected register by rewriting the **PRCR**(Protection Register) register.
 ```c
-SYSTEM.PRCR.WORD = 0xA502;
+SYSTEM.PRCR.WORD = 0xA502;   // enable to write
+MSTP(CMT0) = 0;				 // enable module
+SYSTEM.PRCR.WORD = 0xA502;   // disable to write
 ```
 When rewriting the PRCR register, write "A5h" in the upper 8 bits and any value in the lower 8 bits to prevent unintentional writing operations.
 
@@ -166,6 +175,13 @@ ICU.IER[3].BIT.IEN4 = 1;
 // set interrupt priority, 0 = disabled, 1 = lowest, 15 = highest
 ICU.IPR[4].BIT.IPR = 0x1; 
 ```
+
+Or use hardware register **macros** in Renesas MCU (RX / RL78 families, etc.) to control interrupt priority and interrupt enable.
+```c
+IPR(CMT0, CMI0) = 5;      // Set interrupt priority
+IEN(CMT0, CMI0) = 1;      // Enable interrupt
+```
+
 
 **cmt0_isr**: This is the function name that will act as the ISR.
 ```c
