@@ -171,6 +171,37 @@ Advantages:
 - Low CPU overhead
 - Ideal for real‑time systems
 
+#### Synchronized Trigger
+##### How It Works
+- Trigger signal arrives (timer, external pin, etc.)
+- ADC waits for the **next clock edge**
+- Conversion **starts in sync with clock**
+
+##### Advantages
+- Precise and repeatable, low timing uncertainty (low jitter)
+
+##### Example Use Cases
+- Timer-triggered ADC sampling (most common)
+- Motor control (sampling at exact PWM phase)
+- Audio sampling (consistent sample rate)
+
+#### Asynchronous Trigger
+##### How It Works
+- External signal triggers ADC
+- ADC starts conversion **instantly (hardware-level)**
+
+##### Advantages & Disadvantages
+- No waiting for clock synchronization
+- Captures sudden or unpredictable events
+- Timing Uncertainty (Jitter)
+
+##### Example Use Cases
+- External sensor trigger (e.g., threshold crossing)
+- Fault detection systems
+
+
+
+
 # ADC Input on the RSK‑RX130 Board without external hardware
 The board includes a **variable resistor (VR)** connected to an ADC pin(AN000).
 <img src="/images/AN000.png" width="50%">
