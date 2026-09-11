@@ -1,4 +1,4 @@
-# DTC
+# DTC (Data Transfer Controller)
 ## SCI without DTC (CPU‑driven transfer)
 ### How it works
 The SCI peripheral raises an **interrupt** (or the CPU polls a status flag) when:
@@ -34,7 +34,7 @@ Without DTC
 - CPU runs ~11520 interrupts per second
 - If another ISR delays execution → RX overrun possible
 
-## SCI with DTC (Data Transfer Controller)
+## SCI with DTC
 ### How it works
 - **SCI events (RX/TX) trigger the DTC**
 - The DTC **automatically moves data** between SCI data registers and RAM
